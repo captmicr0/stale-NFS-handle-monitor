@@ -35,19 +35,18 @@ volumes:
   - /single/directory/only:/single/directory/only
 ```
 
-monitor multiple directories with `;` separated list:
+monitor multiple directories with `;` separated list and/or using the * modifier:
 ```
 environment:
-  - STALENFS_MOUNTS=/path/to/directory1;/data/directory2;/data/another/directory
+  - STALENFS_MOUNTS=/path/to/directory1;/data/*
 
 ......
 
 volumes:
   - /path/to/directory1:/path/to/directory1
+  - /data/directory:/data/directory
   - /data/directory2:/data/directory2
-  - /data/another/directory:/data/another/directory
 ```
-
 
 configure the PVE API settings:
 ```

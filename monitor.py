@@ -4,7 +4,6 @@ import signal
 import os
 import subprocess
 import time
-from scandir import scandir
 
 from proxmoer import ProxmoxAPI
 import requests

@@ -8,7 +8,7 @@ RUN chmod +x /app/monitor.py && \
     pip install proxmoxer requests
 
 # Run the cron every minute
-RUN echo '*  *  *  *  *    /usr/local/bin/python /app/monitor.py' >> /etc/crontabs/root
+#RUN echo '*  *  *  *  *    /usr/local/bin/python /app/monitor.py' >> /etc/crontabs/root
 
 CMD ["python", "/app/monitor.py"]
 

@@ -113,7 +113,7 @@ while running:
                 raise Exception('Timeout')
         except Exception as e:
             signal.alarm(0)
-            print('[*] stale file handle detected, rebooting VMID %d [%s]...' % (PVE_VMID, vmname))
+            print('[*] stale file handle detected, rebooting VMID %s [%s]...' % (PVE_VMID, vmname))
             # Reboot VM
             vm.shutdown().post()
             while (vm.current().get()['status'] != 'stopped'): time.sleep(1)

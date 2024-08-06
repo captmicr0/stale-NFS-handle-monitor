@@ -5,7 +5,8 @@ import os
 import subprocess
 import time
 
-from proxmoer import ProxmoxAPI
+from proxmoxer import ProxmoxAPI
+
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -41,11 +42,20 @@ for mount in mounts:
     elif mount.endswith('*') and os.path.isdir(mount[:-1]):
         nfs_mounts.extend([item for item in [os.path.join(mount[:-1], item) for f in os.listdir(mount[:-1])] if os.path.isdir(item)])
 
+print("Paths to monitor:")
+for mount in nfs_mounts:
+    print("\t%s" % mount)
+
 # PVE API setup
 PVE_ADDR = os.environ.get('STALENFS_PVE_ADDR')
 PVE_NODE = os.environ.get('STALENFS_PVE_NODE')
 PVE_USER = os.environ.get('STALENFS_PVE_USER')
 PVE_VMID = os.environ.get('STALENFS_PVE_VMID')
+
+print("PVE_ADDR: %s" % PVE_ADDR)
+print("PVE_NODE: %s" % PVE_NODE)
+print("PVE_USER: %s" % PVE_USER)
+print("PVE_VMID: %s" % PVE_VMID)
 
 if all([item in os.environ.keys() for item in ('STALENFS_PVE_PASS',)]):
     PVE_PASS = os.environ.get('STALENFS_PVE_PASS')
@@ -57,6 +67,12 @@ elif all([item in os.environ.keys() for item in ('STALENFS_PVE_TOKENID','STALENF
 else:
     print('somehow got here even though authENVs are missing?!')
     exit(1)
+
+print("checking PVE access...")
+
+vm = pve.nodes(PVE_NODE).qemu(str(PVE_VMID)).status()
+vmname = vm.current().get()['name']
+print("VMID %s [%s]" % (PVE_VMID, vmname))
 
 # Check mounts
 for path in nfs_mounts:
@@ -76,9 +92,8 @@ for path in nfs_mounts:
             raise Exception('Timeout')
     except Exception as e:
         signal.alarm(0)
-        print('stale handle detected, rebooting VMID %d...' % PVE_VMID)
+        print('stale handle detected, rebooting VMID %d [%s]...' % (PVE_VMID, vmname))
         # Reboot VM
-        vm = pve.nodes(PVE_NODE).qemu(str(PVE_VMID)).status()
         vm.shutdown().post()
         while (vm.current().get()['status'] != 'stopped'): time.sleep(1)
         vm.start().post()

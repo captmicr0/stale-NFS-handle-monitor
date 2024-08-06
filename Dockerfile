@@ -10,6 +10,6 @@ RUN chmod +x /app/monitor.py && \
 # Run the cron every minute
 #RUN echo '*  *  *  *  *    /usr/local/bin/python /app/monitor.py' >> /etc/crontabs/root
 
-CMD ["python", "/app/monitor.py"]
+CMD ["python", "-u", "/app/monitor.py"]
 
 #LABEL org.opencontainers.image.source=https://github.com/captmicr0/stale-NFS-handle-monitor

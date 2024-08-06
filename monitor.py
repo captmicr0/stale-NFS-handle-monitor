@@ -49,18 +49,13 @@ for mount in nfs_mounts:
 
 # Interval
 interval = ('STALENFS_INTERVAL' in envkeys) and os.environ.get('STALENFS_INTERVAL') or 60
-print("[*] Check interval: %d seconds" % interval)
+print("[*] Check interval:\n\t%d seconds" % interval)
 
 # PVE API setup
 PVE_ADDR = os.environ.get('STALENFS_PVE_ADDR')
 PVE_NODE = os.environ.get('STALENFS_PVE_NODE')
 PVE_USER = os.environ.get('STALENFS_PVE_USER')
 PVE_VMID = os.environ.get('STALENFS_PVE_VMID')
-
-print("PVE_ADDR: %s" % PVE_ADDR)
-print("PVE_NODE: %s" % PVE_NODE)
-print("PVE_USER: %s" % PVE_USER)
-print("PVE_VMID: %s" % PVE_VMID)
 
 if all([item in os.environ.keys() for item in ('STALENFS_PVE_PASS',)]):
     PVE_PASS = os.environ.get('STALENFS_PVE_PASS')
@@ -74,6 +69,11 @@ else:
     exit(1)
 
 print("[*] Verifying PVE access...")
+
+print("\tPVE_ADDR: %s" % PVE_ADDR)
+print("\tPVE_NODE: %s" % PVE_NODE)
+print("\tPVE_USER: %s" % PVE_USER)
+print("\tPVE_VMID: %s" % PVE_VMID)
 
 try:
     vm = pve.nodes(PVE_NODE).qemu(str(PVE_VMID)).status()

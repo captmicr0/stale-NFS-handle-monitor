@@ -33,7 +33,14 @@ def alarm_handler(signum, frame):
 TIMEOUT = 60
 
 # List of paths to check
-nfs_mounts = [k for k in os.environ.get('STALENFS_MOUNTS').split(';') if len(k) > 0]
+mounts = [k for k in os.environ.get('STALENFS_MOUNTS').split(';') if len(k) > 0]
+nfs_mounts = []
+
+for mount in mounts:
+    if os.path.isdir(mount):
+        nfs_mounts.append(mount)
+    elif mount.endswith('*') and os.path.isdir(mount[:-1]):
+        nfs_mounts.extend([item for item in [os.path.join(mount[:-1], item) for f in os.listdir(mount[:-1])] if os.path.isdir(item)])
 
 # PVE API setup
 PVE_ADDR = os.environ.get('STALENFS_PVE_ADDR')

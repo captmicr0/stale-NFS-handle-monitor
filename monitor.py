@@ -115,9 +115,7 @@ while running:
             signal.alarm(0)
             print('[*] stale file handle detected, rebooting VMID %s [%s]...' % (PVE_VMID, vmname))
             # Reboot VM
-            vm.shutdown().post()
-            while (vm.current().get()['status'] != 'stopped'): time.sleep(1)
-            vm.start().post()
+            vm.reboot().post()
     time.sleep(interval)
 
 print("[*] end of program")

@@ -51,6 +51,11 @@ for mount in nfs_mounts:
 interval = ('STALENFS_INTERVAL' in envkeys) and os.environ.get('STALENFS_INTERVAL') or 60
 print("[*] Check interval:\n\t%d seconds" % interval)
 
+# Time between reboot requests (incase shutdown takes a while it will stop multiple reboot requests)
+reboot_interval  = ('REBOOT_INTERVAL' in envkeys) and os.environ.get('REBOOT_INTERVAL') or 120
+print("[*] REboot interval:\n\t%d seconds" % reboot_interval)
+
+
 # PVE API setup
 PVE_ADDR = os.environ.get('STALENFS_PVE_ADDR')
 PVE_NODE = os.environ.get('STALENFS_PVE_NODE')
@@ -94,6 +99,8 @@ def signalHandler(signum=99999, frame=None):
 signal.signal(signal.SIGTERM, signalHandler)
 signal.signal(signal.SIGINT, signalHandler)
 
+reboot_last = 0
+
 # Check mounts forever
 while running:
     for path in nfs_mounts:
@@ -113,9 +120,15 @@ while running:
                 raise Exception('Timeout')
         except Exception as e:
             signal.alarm(0)
-            print('[*] stale file handle detected, rebooting VMID %s [%s]...' % (PVE_VMID, vmname))
-            # Reboot VM
-            vm.reboot().post()
+            currtime = time.time()
+            # do not send multiple reboot requets back to back
+            if (currtime >= (reboot_last + reboot_interval)):
+                reboot_interval = time.time()
+                print('[*] stale file handle detected (%s), rebooting VMID %s [%s]...' % (repr(e), PVE_VMID, vmname))
+                # Reboot VM
+                vm.reboot().post()
+            else:
+                print('[*] stale file handle detected (%s), waiting %ds to reboot VMID %s [%s]...' % (repr(e), reboot_interval, PVE_VMID, vmname))
     time.sleep(interval)
 
 print("[*] end of program")
